@@ -1,6 +1,7 @@
 package hg
 
 import (
+	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -226,8 +227,9 @@ func (hs HString) ContainsAnyChars(chars HString) bool {
 }
 
 // StartsWith checks if the HString starts with any of the provided prefixes.
-// The method accepts a variable number of arguments, allowing for checking against multiple prefixes at once.
-// It iterates over the provided prefixes and uses the HasPrefix function from the strings package to check if
+// The method accepts a variable number of arguments, allowing for checking against multiple
+// prefixes at once. It iterates over the provided prefixes and uses the HasPrefix function from
+// the strings package to check if
 // the HString starts with each prefix.
 // The function returns true if the HString starts with any of the prefixes, and false otherwise.
 //
@@ -248,8 +250,9 @@ func (hs HString) StartsWith(prefixes ...HString) bool {
 }
 
 // EndsWith checks if the HString ends with any of the provided suffixes.
-// The method accepts a variable number of arguments, allowing for checking against multiple suffixes at once.
-// It iterates over the provided suffixes and uses the HasSuffix function from the strings package to check if
+// The method accepts a variable number of arguments, allowing for checking against multiple
+// suffixes at once. It iterates over the provided suffixes and uses the HasSuffix function from
+// the strings package to check if
 // the HString ends with each suffix.
 // The function returns true if the HString ends with any of the suffixes, and false otherwise.
 //
@@ -440,7 +443,8 @@ func (hs HString) Similarity(hstr HString) HFloat {
 		distance[lenS1] = prev
 	}
 
-	return HFloat(1).Sub(distance[lenS1].HFloat().Div(HInt(lenS1).Max(HInt(lenS2)).HFloat())).Mul(100)
+	return HFloat(1).
+		Sub(distance[lenS1].HFloat().Div(HInt(lenS1).Max(HInt(lenS2)).HFloat())).Mul(100)
 }
 
 // Compare compares two HStrings and returns an HInt indicating their relative order.
@@ -471,7 +475,9 @@ func (hs HString) Empty() bool { return hs.Len() == 0 }
 func (hs HString) Eq(hstr HString) bool { return hs.Compare(hstr).Eq(0) }
 
 // EqFold compares two HString strings case-insensitively.
-func (hs HString) EqFold(hstr HString) bool { return strings.EqualFold(hs.String(), hstr.String()) }
+func (hs HString) EqFold(hstr HString) bool {
+	return strings.EqualFold(hs.String(), hstr.String())
+}
 
 // Gt checks if the HString is greater than the specified HString.
 func (hs HString) Gt(hstr HString) bool { return hs.Compare(hstr).Gt(0) }
@@ -524,3 +530,8 @@ func (hs HString) String() string { return string(hs) }
 
 // TrimSpace trims whitespace from the beginning and end of the HString.
 func (hs HString) TrimSpace() HString { return HString(strings.TrimSpace(hs.String())) }
+
+// Format applies a specified format to the HString object.
+func (hs HString) Format(format HString) HString {
+	return HString(fmt.Sprintf(format.String(), hs))
+}

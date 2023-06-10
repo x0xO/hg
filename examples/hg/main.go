@@ -187,4 +187,6 @@ func main() {
 	fmt.Println(reg.ContainsRegexp(regexp.MustCompile(`\w+`)))
 
 	fmt.Println(hg.HString("example.com").EndsWith(".com", ".net"))
+
+	fmt.Println(hg.NewHString("Hello").Format("%s world"))
 }
