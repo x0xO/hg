@@ -151,8 +151,12 @@ func (c *Client) FileUpload(rawURL, fieldName, filePath string, data ...any) *Re
 		switch i := v.(type) {
 		case map[string]string:
 			multipartValues = i
+		case hg.HMap[string, string]:
+			multipartValues = i
 		case string:
 			reader = strings.NewReader(i)
+		case hg.HString:
+			reader = i.Reader()
 		}
 	}
 
