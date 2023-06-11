@@ -132,7 +132,7 @@ func (c *Client) Patch(rawURL string, data any) *Request {
 
 // FileUpload creates a new multipart file upload request.
 func (c *Client) FileUpload(rawURL, fieldName, filePath string, data ...any) *Request {
-	rawURL = c.urlFormatter(rawURL)
+	rawURL = urlFormatter(rawURL)
 
 	var (
 		multipartValues map[string]string
@@ -216,7 +216,7 @@ func (c *Client) FileUpload(rawURL, fieldName, filePath string, data ...any) *Re
 
 // Multipart creates a new multipart form data request.
 func (c *Client) Multipart(rawURL string, multipartValues map[string]string) *Request {
-	rawURL = c.urlFormatter(rawURL)
+	rawURL = urlFormatter(rawURL)
 
 	body := new(bytes.Buffer)
 	writer := multipart.NewWriter(body)
@@ -290,11 +290,11 @@ func (c *Client) setCookies(rawURL string, cookies []*http.Cookie) error {
 // method type and body.
 // If there is an error, it returns a Request object with the error set.
 func (c *Client) buildRequest(rawURL, methodType string, data any) *Request {
-	rawURL = c.urlFormatter(rawURL)
+	rawURL = urlFormatter(rawURL)
 
 	request := new(Request)
 
-	body, contentType, err := c.buildBody(data)
+	body, contentType, err := buildBody(data)
 	if err != nil {
 		request.error = err
 		return request
@@ -319,27 +319,33 @@ func (c *Client) buildRequest(rawURL, methodType string, data any) *Request {
 // buildBody takes data of any type and, depending on its type, calls the appropriate method to
 // build the request body.
 // It returns an io.Reader, content type string, and an error if any.
-func (c *Client) buildBody(data any) (io.Reader, string, error) {
+func buildBody(data any) (io.Reader, string, error) {
 	if data == nil {
 		return nil, "", nil
 	}
 
 	switch d := data.(type) {
 	case []byte:
-		return c.buildByteBody(d)
+		return buildByteBody(d)
+	case hg.HBytes:
+		return buildByteBody(d)
 	case string:
-		return c.buildStringBody(d)
+		return buildStringBody(d)
+	case hg.HString:
+		return buildStringBody(d.String())
 	case map[string]string:
-		return c.buildMapBody(d)
-	default:
-		return c.buildAnnotatedBody(d)
+		return buildMapBody(d)
+	case hg.HMap[string, string]:
+		return buildMapBody(d)
 	}
+
+	return buildAnnotatedBody(data)
 }
 
 // buildByteBody accepts a byte slice and returns an io.Reader, content type string, and an error
 // if any.
 // It detects the content type of the data and creates a bytes.Reader from the data.
-func (Client) buildByteBody(data []byte) (io.Reader, string, error) {
+func buildByteBody(data []byte) (io.Reader, string, error) {
 	// raw data
 	contentType := http.DetectContentType(data)
 	reader := bytes.NewReader(data)
@@ -350,8 +356,8 @@ func (Client) buildByteBody(data []byte) (io.Reader, string, error) {
 // buildStringBody accepts a string and returns an io.Reader, content type string, and an error if
 // any.
 // It detects the content type of the data and creates a strings.Reader from the data.
-func (c *Client) buildStringBody(data string) (io.Reader, string, error) {
-	contentType := c.detectContentType(data)
+func buildStringBody(data string) (io.Reader, string, error) {
+	contentType := detectContentType(data)
 
 	// if post encoded data aaa=bbb&ddd=ccc
 	if contentType == "text/plain; charset=utf-8" && strings.ContainsAny(data, "=&") {
@@ -365,7 +371,7 @@ func (c *Client) buildStringBody(data string) (io.Reader, string, error) {
 
 // detectContentType takes a string and returns the content type of the data by checking if it's a
 // JSON or XML string.
-func (Client) detectContentType(data string) string {
+func detectContentType(data string) string {
 	var v any
 
 	if json.Unmarshal([]byte(data), &v) == nil {
@@ -381,7 +387,7 @@ func (Client) detectContentType(data string) string {
 // buildMapBody accepts a map of string keys and values, and returns an io.Reader, content type
 // string, and an error if any.
 // It converts the map to a URL-encoded string and creates a strings.Reader from it.
-func (Client) buildMapBody(data map[string]string) (io.Reader, string, error) {
+func buildMapBody(data map[string]string) (io.Reader, string, error) {
 	// post data map[string]string{"aaa": "bbb", "ddd": "ccc"}
 	contentType := "application/x-www-form-urlencoded"
 	form := url.Values{}
@@ -398,10 +404,10 @@ func (Client) buildMapBody(data map[string]string) (io.Reader, string, error) {
 // buildAnnotatedBody accepts data of any type and returns an io.Reader, content type string, and
 // an error if any. It detects the data format by checking the struct tags and encodes the data in
 // the corresponding format (JSON or XML).
-func (c *Client) buildAnnotatedBody(data any) (io.Reader, string, error) {
+func buildAnnotatedBody(data any) (io.Reader, string, error) {
 	var buf bytes.Buffer
 
-	switch c.detectAnnotatedDataType(data) {
+	switch detectAnnotatedDataType(data) {
 	case "json":
 		if json.NewEncoder(&buf).Encode(data) == nil {
 			return &buf, "application/json; charset=utf-8", nil
@@ -417,7 +423,7 @@ func (c *Client) buildAnnotatedBody(data any) (io.Reader, string, error) {
 
 // detectAnnotatedDataType takes data of any type and returns the data format as a string (either
 // "json" or "xml") by checking the struct tags.
-func (Client) detectAnnotatedDataType(data any) string {
+func detectAnnotatedDataType(data any) string {
 	value := reflect.ValueOf(data)
 
 	for i := 0; i < value.Type().NumField(); i++ {
@@ -437,7 +443,7 @@ func (Client) detectAnnotatedDataType(data any) string {
 
 // urlFormatter accepts a raw URL string and formats it to ensure it has an "http://" or "https://"
 // prefix.
-func (Client) urlFormatter(rawURL string) string {
+func urlFormatter(rawURL string) string {
 	_url := hg.HString(rawURL).Trim(".")
 
 	if !_url.StartsWith("http://", "https://") {

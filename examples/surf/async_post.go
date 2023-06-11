@@ -22,6 +22,8 @@ func main() {
 
 	for i := 0; i < 50; i++ {
 		// note: don't forget to URL encode your query params if you use string post postData!
+		// hg.HString("Hellö Wörld@Golang").Encode().URL()
+		// or
 		// url.QueryEscape("Hellö Wörld@Golang")
 		postData := "custname=root&custtel=999999999&custemail=some@email.com" + fmt.Sprint(i)
 		urls = append(urls, surf.NewAsyncURL("https://httpbingo.org/post").Data(postData))
