@@ -351,7 +351,7 @@ func (hmap HMap[K, V]) String() string {
 
 	hmap.ForEach(func(k K, v V) { builder.WriteString(fmt.Sprintf("%v:%v, ", k, v)) })
 
-	return HString(builder.String()).AddPrefix("HMap[").TrimRight(", ").Add("]").String()
+	return HString(builder.String()).TrimRight(", ").Format("HMap{%s}").String()
 }
 
 // GetOrDefault returns the value for a key. If the key does not exist, returns the default value

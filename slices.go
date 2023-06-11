@@ -1377,7 +1377,7 @@ func (hsl HSlice[T]) String() string {
 
 	hsl.ForEach(func(v T) { builder.WriteString(fmt.Sprintf("%v, ", v)) })
 
-	return HString(builder.String()).AddPrefix("HSlice[").TrimRight(", ").Add("]").String()
+	return HString(builder.String()).TrimRight(", ").Format("HSlice[%s]").String()
 }
 
 // Append appends the provided elements to the slice and returns the modified slice.

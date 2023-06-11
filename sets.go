@@ -356,5 +356,5 @@ func (s HSet[T]) String() string {
 
 	s.ForEach(func(v T) { builder.WriteString(fmt.Sprintf("%v, ", v)) })
 
-	return HString(builder.String()).AddPrefix("HSet[").TrimRight(", ").Add("]").String()
+	return HString(builder.String()).TrimRight(", ").Format("HSet{%s}").String()
 }

@@ -28,13 +28,13 @@ func (d *debug) DNSStat() *debug {
 	}
 
 	stats := d.resp.opt.dnsCacheStats
-	fmt.Fprintf(&d.print, "=========== DNS ============\n")
+	fmt.Fprint(&d.print, hg.NewHString(" DNS ").Center(79, "=").Add("\n").String())
 	fmt.Fprintf(&d.print, "Total Connections: %d\n", stats.totalConn)
 	fmt.Fprintf(&d.print, "Total DNS Queries: %d\n", stats.dnsQuery)
 	fmt.Fprintf(&d.print, "Successful DNS Queries: %d\n", stats.successfulDNSQuery)
 	fmt.Fprintf(&d.print, "Cache Hit: %d\n", stats.cacheHit)
 	fmt.Fprintf(&d.print, "Cache Miss: %d\n", stats.cacheMiss)
-	fmt.Fprintf(&d.print, "============================\n")
+	fmt.Fprint(&d.print, hg.NewHString().Center(79, "=").Add("\n").String())
 
 	return d
 }
@@ -45,12 +45,12 @@ func (d *debug) Request(verbos ...bool) *debug {
 		return d
 	}
 
-	fmt.Fprintf(&d.print, "========= Request ==========\n")
+	fmt.Fprint(&d.print, hg.NewHString(" Request ").Center(79, "=").Add("\n").String())
 	fmt.Fprintf(&d.print, "%s\n", hg.HBytes(body).TrimSpace())
 
 	cookies := d.resp.getCookies(d.resp.request.request.URL.String())
 	if len(cookies) != 0 {
-		fmt.Fprintf(&d.print, "========== Cookie ==========\n")
+		fmt.Fprint(&d.print, hg.NewHString(" Cookie ").Center(79, "=").Add("\n").String())
 
 		for _, cookie := range cookies {
 			fmt.Fprintf(&d.print, "%s\n", cookie.String())
@@ -60,11 +60,12 @@ func (d *debug) Request(verbos ...bool) *debug {
 	if len(verbos) != 0 && verbos[0] && d.resp.request.body != nil {
 		if bytes, err := io.ReadAll(d.resp.request.body); err == nil {
 			reqBody := hg.NewHBytes(bytes).TrimSpace()
-			fmt.Fprintf(&d.print, "========= ReqBody ==========\n%s\n", reqBody)
+			fmt.Fprint(&d.print, hg.NewHString(" ReqBody ").Center(79, "=").String())
+			fmt.Fprint(&d.print, reqBody.HString().Format("\n%s\n").String())
 		}
 	}
 
-	fmt.Fprintf(&d.print, "============================\n")
+	fmt.Fprint(&d.print, hg.NewHString().Center(79, "=").Add("\n").String())
 
 	return d
 }
@@ -75,15 +76,15 @@ func (d *debug) Response(verbos ...bool) *debug {
 		return d
 	}
 
-	fmt.Fprint(&d.print, "========= Response =========\n")
+	fmt.Fprint(&d.print, hg.NewHString(" Response ").Center(79, "=").Add("\n").String())
 	fmt.Fprint(&d.print, hg.HBytes(body).TrimSpace())
 
 	if len(verbos) != 0 && verbos[0] {
-		fmt.Fprint(&d.print, "\n========= ResBody ==========\n")
+		fmt.Fprint(&d.print, hg.NewHString(" ResBody ").Center(79, "=").Format("\n%s\n").String())
 		fmt.Fprint(&d.print, d.resp.Body.HString().TrimSpace())
 	}
 
-	fmt.Fprint(&d.print, "\n============================\n")
+	fmt.Fprint(&d.print, hg.NewHString().Center(79, "=").Format("\n%s\n").String())
 
 	return d
 }

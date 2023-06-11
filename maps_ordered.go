@@ -353,7 +353,7 @@ func (hmapo *HMapOrd[K, V]) String() string {
 
 	hmapo.ForEach(func(k K, v V) { builder.WriteString(fmt.Sprintf("%v:%v, ", k, v)) })
 
-	return HString(builder.String()).AddPrefix("HMapOrd[").TrimRight(", ").Add("]").String()
+	return HString(builder.String()).TrimRight(", ").Format("HMapOrd{%s}").String()
 }
 
 // Clear removes all key-value pairs from the ordered HMap.

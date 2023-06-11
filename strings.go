@@ -535,3 +535,107 @@ func (hs HString) TrimSpace() HString { return HString(strings.TrimSpace(hs.Stri
 func (hs HString) Format(format HString) HString {
 	return HString(fmt.Sprintf(format.String(), hs))
 }
+
+// LeftJustify justifies the HString to the left by adding padding to the right, up to the
+// specified length. If the length of the HString is already greater than or equal to the specified
+// length, or the pad is empty, the original HString is returned.
+//
+// The padding HString is repeated as necessary to fill the remaining length.
+// The padding is added to the right of the HString.
+//
+// Parameters:
+//   - length: The desired length of the resulting justified HString.
+//   - pad: The HString used as padding.
+//
+// Example usage:
+//
+//	hs := hg.HString("Hello")
+//	result := hs.LeftJustify(10, "...")
+//	// result: "Hello....."
+func (hs HString) LeftJustify(length int, pad HString) HString {
+	if hs.LenRunes() >= length || pad.Eq("") {
+		return hs
+	}
+
+	var output strings.Builder
+
+	output.WriteString(hs.String())
+	writePadding(&output, pad, pad.LenRunes(), length-hs.LenRunes())
+
+	return HString(output.String())
+}
+
+// RightJustify justifies the HString to the right by adding padding to the left, up to the
+// specified length. If the length of the HString is already greater than or equal to the specified
+// length, or the pad is empty, the original HString is returned.
+//
+// The padding HString is repeated as necessary to fill the remaining length.
+// The padding is added to the left of the HString.
+//
+// Parameters:
+//   - length: The desired length of the resulting justified HString.
+//   - pad: The HString used as padding.
+//
+// Example usage:
+//
+//	hs := hg.HString("Hello")
+//	result := hs.RightJustify(9, "...")
+//	// result: "....Hello"
+func (hs HString) RightJustify(length int, pad HString) HString {
+	if hs.LenRunes() >= length || pad.Eq("") {
+		return hs
+	}
+
+	var output strings.Builder
+
+	writePadding(&output, pad, pad.LenRunes(), length-hs.LenRunes())
+	output.WriteString(hs.String())
+
+	return HString(output.String())
+}
+
+// Center justifies the HString by adding padding on both sides, up to the specified length.
+// If the length of the HString is already greater than or equal to the specified length, or the
+// pad is empty, the original HString is returned.
+//
+// The padding HString is repeated as necessary to evenly distribute the remaining length on both
+// sides.
+// The padding is added to the left and right of the HString.
+//
+// Parameters:
+//   - length: The desired length of the resulting justified HString.
+//   - pad: The HString used as padding.
+//
+// Example usage:
+//
+//	hs := hg.HString("Hello")
+//	result := hs.Center(10, "...")
+//	// result: "..Hello..."
+func (hs HString) Center(length int, pad HString) HString {
+	if hs.LenRunes() >= length || pad.Eq("") {
+		return hs
+	}
+
+	var output strings.Builder
+
+	remains := length - hs.LenRunes()
+	writePadding(&output, pad, pad.LenRunes(), remains/2)
+	output.WriteString(hs.String())
+	writePadding(&output, pad, pad.LenRunes(), (remains+1)/2)
+
+	return HString(output.String())
+}
+
+// writePadding writes the padding HString to the output Builder to fill the remaining length.
+// It repeats the padding HString as necessary and appends any remaining runes from the padding
+// HString.
+func writePadding(output *strings.Builder, pad HString, padlen, remains int) {
+	if repeats := remains / padlen; repeats > 0 {
+		output.WriteString(pad.Repeat(repeats).String())
+	}
+
+	padrunes := pad.Runes()
+	for i := range iter.N(remains % padlen) {
+		output.WriteRune(padrunes[i])
+	}
+}
