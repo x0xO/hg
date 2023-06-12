@@ -16,7 +16,7 @@ func main() {
 
 	fmt.Println(hg.NewHString("12").HInt())
 	fmt.Println(str.Hash().MD5())
-	fmt.Println(str.Encode().GzFlate().Decode().GzFlate())
+	fmt.Println(str.Enc().GzFlate().Dec().GzFlate())
 
 	var str2 hg.HString = "rest" // declaration and assignation
 
@@ -164,15 +164,18 @@ func main() {
 
 	fmt.Println(similarity)
 
-	fmt.Println(hg.NewHString("&aacute;").Decode().HTML())
+	fmt.Println(hg.NewHString("&aacute;").Dec().HTML())
 
 	to := hg.HString("Hello, 世界!")
 
-	fmt.Println(to.Encode().Binary().Chunks(8).Join(" "))
-	fmt.Println(to.Encode().Binary().Decode().Binary())
+	fmt.Println(to.Enc().Hex())
+	fmt.Println(to.Enc().Hex().Dec().Hex())
 
-	fmt.Println(to.Encode().Hex())
-	fmt.Println(to.Encode().Hex().Decode().Hex())
+	fmt.Println(to.Enc().Octal())
+	fmt.Println(to.Enc().Octal().Dec().Octal())
+
+	fmt.Println(to.Enc().Binary().Chunks(8).Join(" "))
+	fmt.Println(to.Enc().Binary().Dec().Binary())
 
 	toi := hg.HInt(1234567890)
 

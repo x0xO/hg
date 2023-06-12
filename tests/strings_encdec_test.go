@@ -20,7 +20,7 @@ func TestHStringBase64Encode(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.e.Encode().Base64(); got != tt.want {
+			if got := tt.e.Enc().Base64(); got != tt.want {
 				t.Errorf("enc.Base64Encode() = %v, want %v", got, tt.want)
 			}
 		})
@@ -38,7 +38,7 @@ func TestHStringBase64Decode(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.d.Decode().Base64(); got != tt.want {
+			if got := tt.d.Dec().Base64(); got != tt.want {
 				t.Errorf("dec.Base64Decode() = %v, want %v", got, tt.want)
 			}
 		})
@@ -48,7 +48,7 @@ func TestHStringBase64Decode(t *testing.T) {
 func TestHStringRot13(t *testing.T) {
 	input := hg.HString("hello world")
 	expected := hg.HString("uryyb jbeyq")
-	actual := input.Encode().Rot13()
+	actual := input.Enc().Rot13()
 
 	if actual != expected {
 		t.Errorf("Rot13Encode(%q) = %q; expected %q", input, actual, expected)
@@ -56,7 +56,7 @@ func TestHStringRot13(t *testing.T) {
 
 	input = hg.HString("uryyb jbeyq")
 	expected = hg.HString("hello world")
-	actual = input.Decode().Rot13()
+	actual = input.Dec().Rot13()
 
 	if actual != expected {
 		t.Errorf("Rot13Decode(%q) = %q; expected %q", input, actual, expected)
@@ -67,8 +67,8 @@ func TestHStringXOR(t *testing.T) {
 	for range iter.N(100) {
 		input := hg.NewHString().Random(hg.NewHInt().RandomRange(30, 100).Int())
 		key := hg.NewHString().Random(10)
-		obfuscated := input.Encode().XOR(key)
-		deobfuscated := obfuscated.Decode().XOR(key)
+		obfuscated := input.Enc().XOR(key)
+		deobfuscated := obfuscated.Dec().XOR(key)
 
 		if input != deobfuscated {
 			t.Errorf("expected %s, but got %s", input, deobfuscated)
@@ -95,7 +95,7 @@ func TestXOR(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		got := hg.NewHString(tt.input).Encode().XOR(hg.HString(tt.key))
+		got := hg.NewHString(tt.input).Enc().XOR(hg.HString(tt.key))
 		if got != hg.HString(tt.want) {
 			t.Errorf("XOR(%q, %q) = %q; want %q", tt.input, tt.key, got, tt.want)
 		}
@@ -114,7 +114,7 @@ func TestGzFlateDecode(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result := tc.input.Decode().GzFlate()
+			result := tc.input.Dec().GzFlate()
 			if result.Ne(tc.expected) {
 				t.Errorf("GzFlateDecode, expected: %s, got: %s", tc.expected, result)
 			}
@@ -134,7 +134,7 @@ func TestGzFlateEncode(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result := tc.input.Encode().GzFlate()
+			result := tc.input.Enc().GzFlate()
 			if result.Ne(tc.expected) {
 				t.Errorf("GzFlateEncode, expected: %s, got: %s", tc.expected, result)
 			}

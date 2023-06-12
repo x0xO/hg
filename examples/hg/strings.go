@@ -7,8 +7,13 @@ import (
 )
 
 func main() {
-	s := hg.NewHString("привет")
-	fmt.Println(s.LeftJustify(20, "_"))
-	fmt.Println(s.RightJustify(20, "_"))
-	fmt.Println(s.Center(20, "_"))
+	s := hg.NewHString("💛💚💙💜")
+
+	fmt.Println(s.LeftJustify(10, "*"))
+	fmt.Println(s.RightJustify(10, "*"))
+	fmt.Println(s.Center(10, "*"))
+
+	// 💛💚💙💜******
+	// ******💛💚💙💜
+	// ***💛💚💙💜***
 }

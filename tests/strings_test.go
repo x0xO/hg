@@ -349,7 +349,7 @@ func TestHStringEscape(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := test.input.Encode().URL()
+		actual := test.input.Enc().URL()
 		if actual != test.expected {
 			t.Errorf("Escape(%s): expected %s, but got %s", test.input, test.expected, actual)
 		}
@@ -384,7 +384,7 @@ func TestHStringUnEscape(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		actual := test.input.Decode().URL()
+		actual := test.input.Dec().URL()
 		if actual != test.expected {
 			t.Errorf("UnEscape(%s): expected %s, but got %s", test.input, test.expected, actual)
 		}

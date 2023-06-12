@@ -113,13 +113,13 @@ func (hi HInt) Rem(b HInt) HInt { return hi % b }
 func (hi HInt) Sub(b HInt) HInt { return hi - b }
 
 // ToBinary returns the HInt as a binary string.
-func (hi HInt) ToBinary() HString { return HString(fmt.Sprintf("%b", hi)) }
+func (hi HInt) ToBinary() HString { return HString(fmt.Sprintf("%08b", hi)) }
 
 // ToHex returns the HInt as a hexadecimal string.
-func (hi HInt) ToHex() HString { return HString(fmt.Sprintf("0x%X", hi)) }
+func (hi HInt) ToHex() HString { return HString(fmt.Sprintf("%X", hi)) }
 
 // ToOctal returns the HInt as an octal string.
-func (hi HInt) ToOctal() HString { return HString(fmt.Sprintf("%O", hi)) }
+func (hi HInt) ToOctal() HString { return HString(fmt.Sprintf("%o", hi)) }
 
 // UInt returns the HInt as a uint.
 func (hi HInt) UInt() uint { return uint(hi) }

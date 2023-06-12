@@ -11,6 +11,7 @@ import (
 	"log"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/x0xO/hg/pkg/iter"
 )
@@ -22,11 +23,11 @@ type (
 	dec struct{ str HString }
 )
 
-// Encode returns an enc struct wrapping the given HString.
-func (hs HString) Encode() enc { return enc{hs} }
+// Enc returns an enc struct wrapping the given HString.
+func (hs HString) Enc() enc { return enc{hs} }
 
-// Decode returns a dec struct wrapping the given HString.
-func (hs HString) Decode() dec { return dec{hs} }
+// Dec returns a dec struct wrapping the given HString.
+func (hs HString) Dec() dec { return dec{hs} }
 
 // GzFlate compresses the wrapped HString using GzDeflate and returns the compressed data as a
 // Base64-encoded HString.
@@ -44,14 +45,14 @@ func (e enc) GzFlate() HString {
 	_ = writer.Flush()
 	_ = writer.Close()
 
-	return HString(buffer.String()).Encode().Base64()
+	return HString(buffer.String()).Enc().Base64()
 }
 
 // GzFlate decompresses the Base64-encoded wrapped HString using GzInflate and returns the
 // decompressed data as an HString.
 func (d dec) GzFlate() HString {
 	// GzInflate
-	decoded := d.str.Decode().Base64()
+	decoded := d.str.Dec().Base64()
 	if decoded == "" {
 		return decoded
 	}
@@ -114,7 +115,7 @@ func (e enc) Rot13() HString {
 
 // Rot13 decodes the wrapped HString using ROT13 cipher and returns the decoded result as an
 // HString.
-func (d dec) Rot13() HString { return d.str.Encode().Rot13() }
+func (d dec) Rot13() HString { return d.str.Enc().Rot13() }
 
 // XOR encodes the wrapped HString using XOR cipher with the given key and returns the encoded
 // result as an HString.
@@ -134,10 +135,17 @@ func (e enc) XOR(key HString) HString {
 
 // XOR decodes the wrapped HString using XOR cipher with the given key and returns the decoded
 // result as an HString.
-func (d dec) XOR(key HString) HString { return d.str.Encode().XOR(key) }
+func (d dec) XOR(key HString) HString { return d.str.Enc().XOR(key) }
 
 // Hex hex-encodes the wrapped HString and returns the encoded result as an HString.
-func (e enc) Hex() HString { return HString(hex.EncodeToString(e.str.Bytes())) }
+func (e enc) Hex() HString {
+	var result strings.Builder
+	for i := range iter.N(e.str.Len()) {
+		fmt.Fprint(&result, HInt(e.str[i]).ToHex())
+	}
+
+	return HString(result.String())
+}
 
 // Hex hex-decodes the wrapped HString and returns the decoded result as an HString.
 func (d dec) Hex() HString {
@@ -145,14 +153,36 @@ func (d dec) Hex() HString {
 	return HString(result)
 }
 
-// Binary converts the wrapped HString to its binary representation as an HString.
-func (e enc) Binary() HString {
-	var buf bytes.Buffer
-	for i := range iter.N(e.str.Len()) {
-		fmt.Fprintf(&buf, "%08b", e.str[i])
+// Octal returns the octal representation of the encoded string.
+func (e enc) Octal() HString {
+	result := NewHSlice[HString](e.str.LenRunes())
+	for i, char := range e.str.Runes() {
+		result.Set(i, HInt(char).ToOctal())
 	}
 
-	return HString(buf.String())
+	return result.Join(" ")
+}
+
+// Octal returns the octal representation of the decimal-encoded string.
+func (d dec) Octal() HString {
+	var result strings.Builder
+
+	d.str.Split(" ").ForEach(func(oct HString) {
+		n, _ := strconv.ParseUint(oct.String(), 8, 32)
+		fmt.Fprint(&result, string(rune(n)))
+	})
+
+	return HString(result.String())
+}
+
+// Binary converts the wrapped HString to its binary representation as an HString.
+func (e enc) Binary() HString {
+	var result strings.Builder
+	for i := range iter.N(e.str.Len()) {
+		fmt.Fprint(&result, HInt(e.str[i]).ToBinary())
+	}
+
+	return HString(result.String())
 }
 
 // Binary converts the wrapped binary HString back to its original HString representation.

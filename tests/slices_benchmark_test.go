@@ -24,7 +24,7 @@ func BenchmarkMap(b *testing.B) {
 	b.ResetTimer()
 
 	for n := 0; n < b.N; n++ {
-		slice.Map(func(i hg.HString) hg.HString { return i.Encode().GzFlate() })
+		slice.Map(func(i hg.HString) hg.HString { return i.Enc().GzFlate() })
 	}
 }
 
@@ -34,7 +34,7 @@ func BenchmarkMapParallel(b *testing.B) {
 	b.ResetTimer()
 
 	for n := 0; n < b.N; n++ {
-		slice.MapParallel(func(i hg.HString) hg.HString { return i.Encode().GzFlate() })
+		slice.MapParallel(func(i hg.HString) hg.HString { return i.Enc().GzFlate() })
 	}
 }
 
@@ -44,7 +44,7 @@ func BenchmarkFilter(b *testing.B) {
 	b.ResetTimer()
 
 	for n := 0; n < b.N; n++ {
-		slice.Filter(func(i hg.HString) bool { return i.Encode().GzFlate().Len()%2 == 0 })
+		slice.Filter(func(i hg.HString) bool { return i.Enc().GzFlate().Len()%2 == 0 })
 	}
 }
 
@@ -54,6 +54,6 @@ func BenchmarkFilterParallel(b *testing.B) {
 	b.ResetTimer()
 
 	for n := 0; n < b.N; n++ {
-		slice.FilterParallel(func(i hg.HString) bool { return i.Encode().GzFlate().Len()%2 == 0 })
+		slice.FilterParallel(func(i hg.HString) bool { return i.Enc().GzFlate().Len()%2 == 0 })
 	}
 }
